@@ -1,0 +1,44 @@
+name = "Sirius"
+handle = "sirius-store-assistant"
+client_id = "3143c080356693a0111ccb00e9427e85"
+application_url = "https://app.siriusai.store"
+embedded = true
+
+[build]
+automatically_update_urls_on_dev = true
+dev_store_url = "sirius-se8mmhcq.myshopify.com"
+
+[access_scopes]
+scopes = "read_orders,read_products,read_inventory"
+use_legacy_install_flow = false
+
+[auth]
+redirect_urls = [
+  "https://app.siriusai.store/api/auth/shopify/callback"
+]
+
+[webhooks]
+api_version = "2026-04"
+
+  [[webhooks.subscriptions]]
+  topics = [ "app/uninstalled" ]
+  uri = "https://app.siriusai.store/api/webhooks/shopify/app-uninstalled"
+
+  [[webhooks.subscriptions]]
+  topics = [ "app_subscriptions/update" ]
+  uri = "https://app.siriusai.store/api/webhooks/shopify/app-subscriptions-update"
+
+  [[webhooks.subscriptions]]
+  compliance_topics = [ "customers/data_request" ]
+  uri = "https://app.siriusai.store/api/webhooks/shopify/compliance"
+
+  [[webhooks.subscriptions]]
+  compliance_topics = [ "customers/redact" ]
+  uri = "https://app.siriusai.store/api/webhooks/shopify/compliance"
+
+  [[webhooks.subscriptions]]
+  compliance_topics = [ "shop/redact" ]
+  uri = "https://app.siriusai.store/api/webhooks/shopify/compliance"
+
+[pos]
+embedded = false

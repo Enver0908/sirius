@@ -1,0 +1,58 @@
+# Learn more about configuring your app at https://shopify.dev/docs/apps/tools/cli/configuration
+
+name = "Sirius"
+handle = "sirius"
+client_id = "YOUR_SHOPIFY_API_KEY_HERE"
+application_url = "https://your-production-domain.com"
+embedded = true
+
+[build]
+automatically_update_urls_on_dev = true
+dev_store_url = "your-test-store.myshopify.com"
+
+[access_scopes]
+# use_legacy_install_flow = true
+scopes = "read_orders,read_products,read_inventory"
+
+[auth]
+redirect_urls = [
+  "https://your-production-domain.com/api/auth/shopify/callback"
+]
+
+[webhooks]
+api_version = "2026-04"
+
+  [[webhooks.subscriptions]]
+  topics = [ "app/uninstalled" ]
+  uri = "https://your-production-domain.com/api/webhooks/shopify/app-uninstalled"
+
+  [[webhooks.subscriptions]]
+  topics = [ "app_subscriptions/update" ]
+  uri = "https://your-production-domain.com/api/webhooks/shopify/app-subscriptions-update"
+
+  [[webhooks.subscriptions]]
+  topics = [ "orders/create" ]
+  uri = "https://your-production-domain.com/api/webhooks/shopify/orders-create"
+
+  [[webhooks.subscriptions]]
+  topics = [ "orders/updated" ]
+  uri = "https://your-production-domain.com/api/webhooks/shopify/orders-updated"
+
+  # ── Zorunlu GDPR / Privacy Webhook'ları ──
+  # Shopify App Store onayı için bu 3 webhook ZORUNLUDUR.
+  # https://shopify.dev/docs/apps/webhooks/configuration/mandatory-webhooks
+
+  [[webhooks.subscriptions]]
+  topics = [ "customers/data_request" ]
+  uri = "https://your-production-domain.com/api/webhooks/shopify/customers-data-request"
+
+  [[webhooks.subscriptions]]
+  topics = [ "customers/redact" ]
+  uri = "https://your-production-domain.com/api/webhooks/shopify/customers-redact"
+
+  [[webhooks.subscriptions]]
+  topics = [ "shop/redact" ]
+  uri = "https://your-production-domain.com/api/webhooks/shopify/shop-redact"
+
+[pos]
+embedded = false

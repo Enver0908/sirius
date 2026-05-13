@@ -1,0 +1,9 @@
+BEGIN;
+
+ALTER TABLE shops
+  ADD COLUMN IF NOT EXISTS pending_billing_nonce VARCHAR(64);
+
+ALTER TABLE shops
+  DROP COLUMN IF EXISTS ai_api_key;
+
+COMMIT;

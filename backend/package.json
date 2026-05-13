@@ -1,0 +1,38 @@
+{
+  "name": "sirius-backend",
+  "version": "1.0.0",
+  "description": "Sirius - Shopify AI SaaS Platform Backend",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "node src/index.js",
+    "dev": "node --watch src/index.js",
+    "test:context-routing": "node scripts/test-context-routing.js",
+    "test:token-optimization": "node scripts/test-token-optimization.js",
+    "verify:production": "node scripts/verify-production-readiness.js",
+    "verify:multitenant": "node scripts/verify-multitenant-integrity.js"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.30.0",
+    "@google/generative-ai": "^0.21.0",
+    "adm-zip": "^0.5.17",
+    "axios": "^1.7.7",
+    "cookie-parser": "^1.4.7",
+    "cors": "^2.8.5",
+    "csv-parse": "^6.2.1",
+    "dotenv": "^16.4.5",
+    "express": "^4.21.0",
+    "express-rate-limit": "^8.5.1",
+    "helmet": "^8.1.0",
+    "jsonwebtoken": "^9.0.2",
+    "mammoth": "^1.12.0",
+    "morgan": "^1.10.1",
+    "multer": "^2.1.1",
+    "node-cron": "^3.0.3",
+    "openai": "^4.70.0",
+    "pdf-parse": "^1.1.1",
+    "pg": "^8.13.0"
+  },
+  "engines": {
+    "node": ">=20.10.0"
+  }
+}

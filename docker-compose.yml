@@ -1,0 +1,121 @@
+# ═══════════════════════════════════════════════════════════════
+# docker-compose.yml — LOCAL DEVELOPMENT
+# ═══════════════════════════════════════════════════════════════
+# Bu compose dosyası local geliştirme ortamı içindir (HTTP).
+# Production'da HTTPS için:
+#   1. nginx.prod.example.conf → nginx.conf olarak kopyala
+#   2. SSL sertifikalarını volume olarak bağla
+#   3. Port 443'ü ekle
+#   4. NODE_ENV=production ayarla
+#   5. APP_URL'yi https:// ile güncelle
+# ═══════════════════════════════════════════════════════════════
+
+services:
+  # ── PostgreSQL ──
+  postgres:
+    image: postgres:15-alpine
+    container_name: sirius-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: sirius
+      POSTGRES_USER: sirius
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-sirius_secret}
+    ports:
+      - '5432:5432'
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./backend/src/db/schema.sql:/docker-entrypoint-initdb.d/01-schema.sql
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U sirius']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ── Backend (Express) ──
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: sirius-backend
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      NODE_ENV: ${NODE_ENV:-development}
+      PORT: 3001
+      DATABASE_URL: postgresql://sirius:${DB_PASSWORD:-sirius_secret}@postgres:5432/sirius
+      SHOPIFY_API_KEY: ${SHOPIFY_API_KEY}
+      SHOPIFY_API_SECRET: ${SHOPIFY_API_SECRET}
+      SHOPIFY_APP_HANDLE: ${SHOPIFY_APP_HANDLE}
+      APP_URL: ${APP_URL:-http://localhost}
+      ENCRYPTION_KEY: ${ENCRYPTION_KEY}
+      JWT_SECRET: ${JWT_SECRET}
+      AI_DEVELOPMENT_FALLBACK: ${AI_DEVELOPMENT_FALLBACK:-false}
+      SHOPIFY_BILLING_TEST_MODE: ${SHOPIFY_BILLING_TEST_MODE:-false}
+      UPLOAD_STORAGE_PATH: /app/storage/uploads
+    ports:
+      - '3001:3001'
+    volumes:
+      - backend_uploads:/app/storage/uploads
+    healthcheck:
+      test: ['CMD', 'wget', '-qO-', 'http://localhost:3001/health']
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # ── Frontend (Next.js) ──
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      args:
+        NEXT_PUBLIC_API_URL: ${APP_URL:-http://localhost}
+        NEXT_PUBLIC_SHOPIFY_API_KEY: ${SHOPIFY_API_KEY}
+        NEXT_PUBLIC_SHOPIFY_APP_HANDLE: ${SHOPIFY_APP_HANDLE}
+    container_name: sirius-frontend
+    restart: unless-stopped
+    depends_on:
+      - backend
+    environment:
+      NODE_ENV: production
+      NEXT_PUBLIC_API_URL: ${APP_URL:-http://localhost}
+      NEXT_PUBLIC_SHOPIFY_API_KEY: ${SHOPIFY_API_KEY}
+      NEXT_PUBLIC_SHOPIFY_APP_HANDLE: ${SHOPIFY_APP_HANDLE}
+    ports:
+      - '3000:3000'
+    healthcheck:
+      test: ['CMD', 'wget', '-qO-', 'http://127.0.0.1:3000']
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # ── Nginx Reverse Proxy (HTTP — Local Dev) ──
+  # Production'da HTTPS için nginx.prod.example.conf kullanın
+  nginx:
+    image: nginx:alpine
+    container_name: sirius-proxy
+    restart: unless-stopped
+    depends_on:
+      - backend
+      - frontend
+    ports:
+      - '80:80'
+      # Production'da port 443 ekleyin:
+      # - '443:443'
+    volumes:
+      - ./nginx.conf:/etc/nginx/conf.d/default.conf:ro
+      # Production'da SSL sertifikaları:
+      # - /etc/letsencrypt:/etc/letsencrypt:ro
+      # - /var/www/certbot:/var/www/certbot:ro
+    healthcheck:
+      test: ['CMD', 'wget', '-qO-', 'http://127.0.0.1/health']
+      interval: 30s
+      timeout: 5s
+      retries: 3
+
+volumes:
+  pgdata:
+    driver: local
+  backend_uploads:
+    driver: local
