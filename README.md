@@ -51,10 +51,11 @@ graph TD
 ```
 
 ## Screenshots
-*Panel görselleri geliştirme aşamasına göre güncellenecektir.*
-- **Dashboard:** Mağaza özet analitiği ve anomali uyarılarının listelendiği ekran.
-- **AI Chat & Skills:** Seçili modeller ve aktif skiller (anomali, satış, görev vb.) ile sohbet arayüzü.
-- **Task Manager:** Yapay zeka tarafından tespit edilip oluşturulan eyleme dökülebilir görev listesi.
+- **Dashboard & Model Selection:**
+  ![Dashboard Model Selection](screenshots/dashboard-model-selection.png)
+- **AI Chat & Interface:**
+  ![AI Chat Interface](screenshots/chat-interface.png)
+
 
 ## How to Run
 
